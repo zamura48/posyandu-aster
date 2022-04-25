@@ -37,6 +37,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
         href="{{ asset('vendor/AdminLTE-3.1.0') }}/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
     {{-- jquery ui --}}
     <link rel="stylesheet" href="{{ asset('vendor/AdminLTE-3.1.0/plugins/jquery-ui/jquery-ui.theme.css') }}">
+    <!-- daterange picker -->
+    <link rel="stylesheet" href="{{ asset('vendor/AdminLTE-3.1.0') }}/plugins/daterangepicker/daterangepicker.css">
 </head>
 
 <body class="hold-transition sidebar-mini">
@@ -116,6 +118,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <script src="{{ asset('vendor/AdminLTE-3.1.0') }}/plugins/chart.js/Chart.min.js"></script>
     {{-- Highchart --}}
     <script src="{{ asset('vendor/AdminLTE-3.1.0/plugins/highchart/highcharts.js') }}"></script>
+    {{-- daterange --}}
+    <script src="{{ asset('vendor/AdminLTE-3.1.0') }}/plugins/daterangepicker/daterangepicker.js"></script>
     {{-- push js form yield content --}}
     @stack('js')
 </body>

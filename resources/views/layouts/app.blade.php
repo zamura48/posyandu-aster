@@ -38,7 +38,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
     {{-- jquery ui --}}
     <link rel="stylesheet" href="{{ asset('vendor/AdminLTE-3.1.0/plugins/jquery-ui/jquery-ui.theme.css') }}">
     <!-- daterange picker -->
-    <link rel="stylesheet" href="{{ asset('vendor/AdminLTE-3.1.0') }}/plugins/daterangepicker/daterangepicker.css">
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.2.0/css/datepicker.min.css">
 </head>
 
 <body class="hold-transition sidebar-mini">
@@ -119,7 +120,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
     {{-- Highchart --}}
     <script src="{{ asset('vendor/AdminLTE-3.1.0/plugins/highchart/highcharts.js') }}"></script>
     {{-- daterange --}}
-    <script src="{{ asset('vendor/AdminLTE-3.1.0') }}/plugins/daterangepicker/daterangepicker.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.2.0/js/bootstrap-datepicker.min.js"></script>
     {{-- push js form yield content --}}
     @stack('js')
 </body>

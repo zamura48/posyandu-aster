@@ -34,6 +34,19 @@
                 </div>
                 <!-- /.card-header -->
                 <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4 mt-2">
+                            <input type="date" name="form_date" id="form_date" class="form-control"
+                                placeholder="Start date">
+                        </div>
+                        <div class="col-md-4 mt-2">
+                            <input type="date" name="to_date" id="to_date" class="form-control" placeholder="End date">
+                        </div>
+                        <div class="col-md-4 mt-2">
+                            <button class="btn btn-primary" id="filter" name="filter">Filter</button>
+                            <button class="btn btn-default" id="reset" name="reset">Reset</button>
+                        </div>
+                    </div>
                     <table id="table_imunisasi" class="table table-bordered table-hover">
                         <thead>
                             <tr>
@@ -69,204 +82,120 @@
 @push('js')
     <script>
         $(function() {
-            $('#table_imunisasi').DataTable({
-                pangging: true,
-                autoWidth: true,
-                // responsive: true,
-                scrollX: true,
-                scrollCollapse: true,
-                fixedColumns: {
-                    left: 1
-                },
-                ajax: 'imunisasi',
-                columns: [{
-                        data: 'balita.nama_lengkap',
-                        name: 'balita.nama_lengkap',
-                        width: '15%'
+            var Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000
+            });
+
+            load_data_imunisasi();
+
+            function load_data_imunisasi(form_date = '', to_date = '') {
+                $('#table_imunisasi').DataTable({
+                    pangging: true,
+                    autoWidth: true,
+                    // responsive: true,
+                    scrollX: true,
+                    scrollCollapse: true,
+                    fixedColumns: {
+                        left: 1
                     },
-                    {
-                        data: 'hb0',
-                        orderable: false,
-                        render: function(data) {
-                            if (data !== null) {
-                                let date = new Date(data);
-                                return date.getDate() + "-" + date.getMonth() + "-" + date
-                                    .getFullYear();
-                            } else {
-                                return '';
-                            }
+                    processing: true,
+                    serverside: true,
+                    ajax: {
+                        url: '{{ route("imunisasi.index") }}',
+                        data: {
+                            form_date: form_date,
+                            to_date: to_date,
                         }
                     },
-                    {
-                        data: 'bcg',
-                        orderable: false,
-                        render: function(data) {
-                            if (data !== null) {
-                                let date = new Date(data);
-                                return date.getDate() + "-" + date.getMonth() + "-" + date
-                                    .getFullYear();
-                            } else {
-                                return '';
-                            }
+                    columns: [{
+                            data: 'balita.nama_lengkap',
+                            name: 'balita.nama_lengkap',
+                            width: '15%'
+                        },
+                        {
+                            data: 'hb0',
+                            orderable: false
+                        },
+                        {
+                            data: 'bcg',
+                            orderable: false
+                        },
+                        {
+                            data: 'p1',
+                            orderable: false
+                        },
+                        {
+                            data: 'dpt1',
+                            orderable: false
+                        },
+                        {
+                            data: 'p2',
+                            orderable: false
+                        },
+                        {
+                            data: 'pcv1',
+                            orderable: false
+                        },
+                        {
+                            data: 'dpt2',
+                            orderable: false
+                        },
+                        {
+                            data: 'p3',
+                            orderable: false
+                        },
+                        {
+                            data: 'pcv2',
+                            orderable: false
+                        },
+                        {
+                            data: 'dpt3',
+                            orderable: false
+                        },
+                        {
+                            data: 'p4',
+                            orderable: false
+                        },
+                        {
+                            data: 'pcv3',
+                            orderable: false
+                        },
+                        {
+                            data: 'ipv',
+                            orderable: false
+                        },
+                        {
+                            data: 'campak',
+                            orderable: false
                         }
-                    },
-                    {
-                        data: 'p1',
-                        orderable: false,
-                        render: function(data) {
-                            if (data !== null) {
-                                let date = new Date(data);
-                                return date.getDate() + "-" + date.getMonth() + "-" + date
-                                    .getFullYear();
-                            } else {
-                                return '';
-                            }
-                        }
-                    },
-                    {
-                        data: 'dpt1',
-                        orderable: false,
-                        render: function(data) {
-                            if (data !== null) {
-                                let date = new Date(data);
-                                return date.getDate() + "-" + date.getMonth() + "-" + date
-                                    .getFullYear();
-                            } else {
-                                return '';
-                            }
-                        }
-                    },
-                    {
-                        data: 'p2',
-                        orderable: false,
-                        render: function(data) {
-                            if (data !== null) {
-                                let date = new Date(data);
-                                return date.getDate() + "-" + date.getMonth() + "-" + date
-                                    .getFullYear();
-                            } else {
-                                return '';
-                            }
-                        }
-                    },
-                    {
-                        data: 'pcv1',
-                        orderable: false,
-                        render: function(data) {
-                            if (data !== null) {
-                                let date = new Date(data);
-                                return date.getDate() + "-" + date.getMonth() + "-" + date
-                                    .getFullYear();
-                            } else {
-                                return '';
-                            }
-                        }
-                    },
-                    {
-                        data: 'dpt2',
-                        orderable: false,
-                        render: function(data) {
-                            if (data !== null) {
-                                let date = new Date(data);
-                                return date.getDate() + "-" + date.getMonth() + "-" + date
-                                    .getFullYear();
-                            } else {
-                                return '';
-                            }
-                        }
-                    },
-                    {
-                        data: 'p3',
-                        orderable: false,
-                        render: function(data) {
-                            if (data !== null) {
-                                let date = new Date(data);
-                                return date.getDate() + "-" + date.getMonth() + "-" + date
-                                    .getFullYear();
-                            } else {
-                                return '';
-                            }
-                        }
-                    },
-                    {
-                        data: 'pcv2',
-                        orderable: false,
-                        render: function(data) {
-                            if (data !== null) {
-                                let date = new Date(data);
-                                return date.getDate() + "-" + date.getMonth() + "-" + date
-                                    .getFullYear();
-                            } else {
-                                return '';
-                            }
-                        }
-                    },
-                    {
-                        data: 'dpt3',
-                        orderable: false,
-                        render: function(data) {
-                            if (data !== null) {
-                                let date = new Date(data);
-                                return date.getDate() + "-" + date.getMonth() + "-" + date
-                                    .getFullYear();
-                            } else {
-                                return '';
-                            }
-                        }
-                    },
-                    {
-                        data: 'p4',
-                        orderable: false,
-                        render: function(data) {
-                            if (data !== null) {
-                                let date = new Date(data);
-                                return date.getDate() + "-" + date.getMonth() + "-" + date
-                                    .getFullYear();
-                            } else {
-                                return '';
-                            }
-                        }
-                    },
-                    {
-                        data: 'pcv3',
-                        orderable: false,
-                        render: function(data) {
-                            if (data !== null) {
-                                let date = new Date(data);
-                                return date.getDate() + "-" + date.getMonth() + "-" + date
-                                    .getFullYear();
-                            } else {
-                                return '';
-                            }
-                        }
-                    },
-                    {
-                        data: 'ipv',
-                        orderable: false,
-                        render: function(data) {
-                            if (data !== null) {
-                                let date = new Date(data);
-                                return date.getDate() + "-" + date.getMonth() + "-" + date
-                                    .getFullYear();
-                            } else {
-                                return '';
-                            }
-                        }
-                    },
-                    {
-                        data: 'campak',
-                        orderable: false,
-                        render: function(data) {
-                            if (data !== null) {
-                                let date = new Date(data);
-                                return date.getDate() + "-" + date.getMonth() + "-" + date
-                                    .getFullYear();
-                            } else {
-                                return '';
-                            }
-                        }
-                    }
-                ]
+                    ]
+                });
+            }
+
+            $("#filter").click(function(e) {
+                e.preventDefault();
+
+                let form_date = $("#form_date").val();
+                let to_date = $("#to_date").val();
+                if (form_date != '' && to_date != '') {
+                    $('#table_imunisasi').DataTable().destroy();
+                    load_data_imunisasi(form_date, to_date);
+                } else {
+                    Toast.fire({
+                        icon: 'warning',
+                        title: 'Tanggal wajib disi.'
+                    });
+                }
+            });
+
+            $("#reset").click(function (e) {
+                e.preventDefault();
+
+                $("#table_imunisasi").DataTable().destroy();
+                load_data();
             });
         });
     </script>

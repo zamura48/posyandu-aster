@@ -22,7 +22,12 @@ class ImunisasiController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            return DataTables::of(Imunisasi::all()->load('balita'))
+            if (empty($request->form_date) && empty($request->to_date)) {
+                $data = Imunisasi::all()->load('balita');
+            } else {
+                $data = Imunisasi::whereBetween('hb0', [$request->form_date, $request->to_date])->get()->load('balita');
+            }
+            return DataTables::of($data)
                 ->addColumn('aksi', function ($model) {
                     $button = '<button type="button" class="btn btn-primary btn-sm" onclick="detailDataImunisasi(' . $model->id . ')"><i class="fa fa-list"></i> Detail</button> <button type="button" class="btn btn-warning btn-sm" onclick="ubahDataImunisasi(' . $model->id . ')"><i class="fa fa-edit"></i> Ubah</button> <button type="button" class="btn btn-danger btn-sm" onclick="hapusDataImunisasi(' . $model->id . ')"><i class="fa fa-trash"></i> Hapus</button>';
                     return $button;

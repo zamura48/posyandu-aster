@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\IbuKB;
+use App\Models\Ortu;
 use App\Models\RiwayatIbuKB;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
@@ -17,9 +18,10 @@ class IbuKBController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            return DataTables::of(IbuKB::all()->load('riwayat_ibu_kb'))
+            $datas = RiwayatIbuKB::all()->load('ibu_kb');
+            return DataTables::of($datas)
                 ->addColumn('aksi', function ($model) {
-                    return '<button type="button" class="btn btn-info btn-sm" onclick="detailDataIbuKB(' . $model->id . ')"><i class="fa fa-list"></i> Detail</button> <button type="button" class="btn btn-warning btn-sm" onclick="ubahDataIbuKB(' . $model->id . ')"><i class="fa fa-edit"></i> Ubah</button> <button type="button" class="btn btn-danger btn-sm" onclick="hapusDataIbuKB(' . $model->id . ')"><i class="fa fa-trash"></i> Hapus</button>';
+                    return '<div class="btn-group"><a href="' . route('ibu_kb.show', $model->ibu_kb->id)  . '" class="btn btn-info btn-sm" onclick="detailDataIbuKB(' . $model->id . ')"><i class="fa fa-list"></i> Detail</a> <button type="button" class="btn btn-warning btn-sm" onclick="ubahDataIbuKB(' . $model->id . ')"><i class="fa fa-edit"></i> Ubah</button> <button type="button" class="btn btn-danger btn-sm" onclick="hapusDataIbuKB(' . $model->id . ')"><i class="fa fa-trash"></i> Hapus</button></div>';
                 })
                 ->rawColumns(['aksi'])
                 ->toJson();
@@ -47,31 +49,56 @@ class IbuKBController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nik' => ['required', 'min:16', 'max:16', 'unique:ibu_kb_s'],
-            'nama_istri' => ['required'],
+            'nik' => ['required', 'min:16', 'max:16'],
+            'nama_istri' => ['required', 'string'],
             'tanggal_lahir' => ['required', 'date'],
-            'alamat' => ['required'],
-            'pekerjaan_istri' => ['required'],
+            'alamat' => ['required', 'string'],
+            'pekerjaan_istri' => ['required', 'string'],
             'nomor_telepon' => ['required', 'numeric'],
-            'nama_suami' => ['required'],
-            'pekerjaan_suami' => ['required'],
+            'nama_suami' => ['required', 'string'],
+            'pekerjaan_suami' => ['required', 'string'],
             'riwayat_kb' => ['required', 'numeric'],
             'suntik_awal' => ['required', 'date'],
-            'suntik_akhir' => ['required', 'date'],
-            'hasil_pemeriksaan' => ['required'],
+            // 'suntik_akhir' => ['required', 'date'],
+            'hasil_pemeriksaan' => ['required', 'string'],
         ]);
 
-        $ibu_kb = IbuKB::create([
-            'nik' => $request->nik,
-            'nama_istri' => $request->nama_istri,
-            'tanggal_lahir' => $request->tanggal_lahir,
-            'alamat' => $request->alamat,
-            'pekerjaan_istri' => $request->pekerjaan_istri,
-            'nomor_telepon' => $request->nomor_telepon,
-            'nama_suami' => $request->nama_suami,
-            'pekerjaan_suami' => $request->pekerjaan_suami,
-            'jumlah_anak' => $request->jumlah_anak
-        ]);
+        $ortu = Ortu::where('nama_suami', $request->nama_suami)
+            ->where('nama_istri', $request->nama_istri)
+            ->orWhere('nik', $request->nik)
+            ->first();
+
+        if (empty($ortu)) {
+            $request->validate(['nik' => ['unique:ortus']]);
+            $ortu_id = Ortu::create([
+                'nik' => $request->nik,
+                'nama_istri' => $request->nama_istri,
+                'tanggal_lahir' => $request->tanggal_lahir,
+                'alamat' => $request->alamat,
+                'pekerjaan_istri' => $request->pekerjaan_istri,
+                'nomor_telepon' => $request->nomor_telepon,
+                'nama_suami' => $request->nama_suami,
+                'pekerjaan_suami' => $request->pekerjaan_suami,
+                'jumlah_anak' => $request->jumlah_anak,
+                'status' => "Ibu KB"
+            ]);
+        } elseif (is_null($ortu->nik)) {
+            $ortu_id = Ortu::findOrFail($ortu->id)->update([
+                'nik' => $request->nik,
+                // 'nama_istri' => $request->nama_istri,
+                'tanggal_lahir' => $request->tanggal_lahir,
+                'alamat' => $request->alamat,
+                'pekerjaan_istri' => $request->pekerjaan_istri,
+                'nomor_telepon' => $request->nomor_telepon,
+                // 'nama_suami' => $request->nama_suami,
+                'pekerjaan_suami' => $request->pekerjaan_suami,
+                'jumlah_anak' => $request->jumlah_anak,
+                'status' => "Ibu KB"
+            ]);
+        } else {
+            Ortu::where('nik', $request->nik)->update(['status' => "Ibu KB"]);
+            $ortu_id = Ortu::where('nik', $request->nik)->first();
+        }
 
         RiwayatIbuKB::create([
             'riwayat_kb' => $request->riwayat_kb,
@@ -79,7 +106,7 @@ class IbuKBController extends Controller
             'suntik_akhir' => $request->suntik_akhir,
             'hasil_pemeriksaan' => $request->hasil_pemeriksaan,
             'kader_id' => auth()->user()->id,
-            'ibu_k_b_id' => $ibu_kb->id
+            'ortu_id' => $ortu_id->id
         ]);
 
         return response()->json(200);
@@ -91,9 +118,24 @@ class IbuKBController extends Controller
      * @param  \App\Models\IbuKB  $ibuKB
      * @return \Illuminate\Http\Response
      */
-    public function show(IbuKB $ibuKB)
+    public function show(Request $request, $ibuKB)
     {
-        //
+        $ibu_kb = Ortu::findOrFail($ibuKB)->load('riwayat_ibu_kb');
+
+        if ($request->ajax()) {
+            $riwayat_ibu_kb = RiwayatIbuKB::where('ortu_id', $ibuKB)
+                ->orderBy('suntik_awal', 'asc')
+                ->get()
+                ->load('kader');
+            return DataTables::of($riwayat_ibu_kb)->toJson();
+        }
+
+        $datas = [
+            'activePage' => "Ibu KB",
+            'ibu_kb' => $ibu_kb
+        ];
+
+        return view('dashboard.page.ibu_kb.show', $datas);
     }
 
     /**
@@ -104,9 +146,9 @@ class IbuKBController extends Controller
      */
     public function edit($ibuKB)
     {
-        $data = IbuHamil::findOrFail($ibuKB)->load('riwayat_ibu_hamil');
+        $datas = RiwayatIbuKB::findOrFail($ibuKB)->load('ibu_kb');
 
-        return response()->json(base64_encode(json_encode($data)));
+        return response()->json(base64_encode(json_encode($datas)));
     }
 
     /**
@@ -116,20 +158,20 @@ class IbuKBController extends Controller
      * @param  \App\Models\IbuKB  $ibuKB
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, IbuKB $ibuKB)
+    public function update(Request $request, $ibuKB)
     {
         $request->validate([
-            'nik' => ['required', 'min:16', 'max:16', 'unique:ibu_kb_s'],
-            'nama_istri' => ['required'],
+            'nik' => ['required', 'min:16', 'max:16'],
+            'nama_istri' => ['required', 'string'],
             'tanggal_lahir' => ['required', 'date'],
-            'alamat' => ['required'],
-            'pekerjaan_istri' => ['required'],
+            'alamat' => ['required', 'string'],
+            'pekerjaan_istri' => ['required', 'string'],
             'nomor_telepon' => ['required', 'numeric'],
-            'nama_suami' => ['required'],
-            'pekerjaan_suami' => ['required'],
+            'nama_suami' => ['required', 'string'],
+            'pekerjaan_suami' => ['required', 'string'],
             'riwayat_kb' => ['required', 'numeric'],
             'suntik_awal' => ['required', 'date'],
-            'suntik_akhir' => ['required', 'date'],
+            // 'suntik_akhir' => ['date'],
             'hasil_pemeriksaan' => ['required'],
         ]);
 
@@ -147,6 +189,10 @@ class IbuKBController extends Controller
         $data->suntik_awal = $request->suntik_awal;
         $data->suntik_akhir = $request->suntik_akhir;
         $data->hasil_pemeriksaan = $request->hasil_pemeriksaan;
+        if (!is_null($request->suntik_akhir)) {
+            $data->ibu_kb->status = null;
+        }
+        $data->ibu_kb->save();
         $data->save();
 
         return response()->json(200);
@@ -158,10 +204,15 @@ class IbuKBController extends Controller
      * @param  \App\Models\IbuKB  $ibuKB
      * @return \Illuminate\Http\Response
      */
-    public function destroy(RiwayatIbuKB $ibuKB)
+    public function destroy($ibuKB)
     {
-        $ibuKB->delete();
+        RiwayatIbuKB::findOrFail($ibuKB)->delete();
 
         return response()->json(200);
+    }
+
+    public function export($dari_tanggal, $sampai_tanggal)
+    {
+        return redirect()->back();
     }
 }

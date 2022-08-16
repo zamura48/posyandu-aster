@@ -2,14 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\PenimbanganExport;
 use App\Models\Balita;
 use App\Models\Penimbangan;
+use App\Models\PenimbanganDanVitamin;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\DataTables;
 use Validator;
 
 class PenimbanganController extends Controller
 {
+    protected $penimbangan;
+
+    public function __construct()
+    {
+        $this->penimbangan = new PenimbanganDanVitamin();
+    }
     /**
      * Display a listing of the resource.
      *
@@ -18,9 +27,15 @@ class PenimbanganController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            return DataTables::of(Penimbangan::all()->load('balita'))
+            if (empty($request->tahun)) {
+                $datas = $this->penimbangan->getDataPenimbangan()->whereYear('tanggal_input', date('Y'))->get();
+            } else {
+                $datas = $this->penimbangan->getDataPenimbangan()->whereYear('tanggal_input', $request->tahun)->get();
+            }
+
+            return DataTables::of($datas)
                 ->addColumn('aksi', function ($model) {
-                    $button = '<button type="button" class="btn btn-info btn-sm" onclick="detailDataPenimbangan(' . $model->id . ')"><i class="fa fa-list"></i> Detail</button> <button type="button" class="btn btn-warning btn-sm" onclick="ubahDataPenimbangan(' . $model->id . ')"><i class="fa fa-edit"></i> Ubah</button> <button type="button" class="btn btn-danger btn-sm" onclick="hapusDataPenimbangan(' . $model->id . ')"><i class="fa fa-trash"></i> Hapus</button>';
+                    $button = '<div class="btn-group"><a href="' . route('penimbangan.edit', $model->balita_id) . '" class="btn btn-warning btn-sm"><i class="fa fa-edit"></i> Ubah</a> <button type="button" class="btn btn-danger btn-sm" onclick="hapusDataPenimbangan(' . $model->balita_id . ')"><i class="fa fa-trash"></i> Hapus</button></div>';
                     return $button;
                 })
                 ->rawColumns(['aksi'])
@@ -50,30 +65,26 @@ class PenimbanganController extends Controller
      */
     public function store(Request $request)
     {
-        $rules = [
-            'tahun' => 'required',
-            'bulan' => 'required',
-            'bb' => 'required',
-            'tb' => 'required',
-            'balita_id' => 'required'
-        ];
+        // $request->validate([
+        //     'bulan_tahun' => ['required'],
+        //     'bb' => ['required'],
+        //     'tb' => ['required'],
+        //     'balita_id' => ['required']
+        // ]);
 
-        $validator = Validator::make($request->all(), $rules);
+        // // MEMISAH BULAN DAN TAHUN
+        // $explode = explode("-", $request->bulan_tahun);
 
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()->toArray()]);
-        }
+        // PenimbanganDanVitamin::create([
+        //     'tahun' => $explode[1],
+        //     'bulan' => $explode[0],
+        //     'bb' => $request->bb,
+        //     'tb' => $request->tb,
+        //     'keterangan' => $request->keterangan,
+        //     'balita_id' => decrypt($request->balita_id)
+        // ]);
 
-        Penimbangan::create([
-            'tahun' => $request->tahun,
-            'bulan' => $request->bulan,
-            'bb' => $request->bb,
-            'tb' => $request->tb,
-            'keterangan' => $request->keterangan,
-            'balita_id' => decrypt($request->balita_id)
-        ]);
-
-        return response()->json(200);
+        // return response()->json(200);
     }
 
     /**
@@ -82,9 +93,8 @@ class PenimbanganController extends Controller
      * @param  \App\Models\Penimbangan  $penimbangan
      * @return \Illuminate\Http\Response
      */
-    public function show(Penimbangan $penimbangan)
+    public function show($penimbangan)
     {
-        //
     }
 
     /**
@@ -93,11 +103,32 @@ class PenimbanganController extends Controller
      * @param  \App\Models\Penimbangan  $penimbangan
      * @return \Illuminate\Http\Response
      */
-    public function edit($penimbangan)
+    public function edit(Request $request, $penimbangan)
     {
-        $data = Penimbangan::findOrFail($penimbangan)->load('balita');
+        if ($request->ajax()) {
+            $penimbangans = Balita::where('id', $penimbangan)->first()->load('penimbangan_dan_vitamin.balita');
 
-        return response()->json(base64_encode(json_encode($data)));
+            return DataTables::of($penimbangans->penimbangan_dan_vitamin)
+                ->addColumn('aksi', function ($model) {
+                    $button = '<div class="btn-group"><button type="button" class="btn btn-warning btn-sm" onclick="ubahDataPenimbangan(' . $model->id . ')"><i class="fa fa-edit"></i> Ubah</button> <button type="button" class="btn btn-danger btn-sm" onclick="hapusDataPenimbangan(' . $model->id . ')"><i class="fa fa-trash"></i> Hapus</button></div>';
+                    return $button;
+                })
+                ->rawColumns(['aksi'])
+                ->toJson();
+        }
+
+        $datas = [
+            'activePage' => "Penimbangan Balita",
+            'penimbangan' => $penimbangan,
+        ];
+
+        return view('dashboard.page.penimbangan.edit', $datas);
+    }
+
+    public function getDataEdit($id)
+    {
+        $penimbangan = PenimbanganDanVitamin::findOrFail($id)->load('balita');
+        return response()->json($penimbangan);
     }
 
     /**
@@ -109,26 +140,19 @@ class PenimbanganController extends Controller
      */
     public function update(Request $request, $penimbangan)
     {
-        $rules = [
-            'tahun' => 'required',
-            'bulan' => 'required',
-            'bb' => 'required',
-            'tb' => 'required',
-        ];
+        $request->validate([
+            'tanggal_input' => ['required', 'date'],
+            'bb' => ['required'],
+            'tb' => ['required']
+        ]);
+        // dd($request->all());
 
-        $validator = Validator::make($request->all(), $rules);
-
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()->toArray()]);
-        }
-
-        $data = Penimbangan::findOrFail($penimbangan);
-        $data->tahun = $request->tahun;
-        $data->bulan = $request->bulan;
-        $data->bb = $request->bb;
-        $data->tb = $request->tb;
-        $data->keterangan = $request->keterangan;
-        $data->save();
+        PenimbanganDanVitamin::findOrFail($request->id)->update([
+            'tanggal_input' => $request->tanggal_input,
+            'bb' => $request->bb,
+            'tb' => $request->tb,
+            'keterangan' => $request->keterangan
+        ]);
 
         return response()->json(200);
     }
@@ -139,10 +163,22 @@ class PenimbanganController extends Controller
      * @param  \App\Models\Penimbangan  $penimbangan
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Penimbangan $penimbangan)
+    public function destroy($penimbangan)
     {
-        $penimbangan->delete();
+        PenimbanganDanVitamin::where('balita_id', $penimbangan)->delete();
 
         return response()->json(200);
+    }
+
+    public function destroyOne($id)
+    {
+        PenimbanganDanVitamin::findOrFail($id)->delete();
+
+        return response()->json(200);
+    }
+
+    public function export(int $tahun)
+    {
+        return Excel::download(new PenimbanganExport($tahun), "Penimbangan {$tahun}.xlsx");
     }
 }

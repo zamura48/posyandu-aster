@@ -4,6 +4,11 @@
 $hari_ini = date('d-m-yy');
 ?>
 
+{{-- {{ dd($balitas) }} --}}
+{{-- @foreach ($balitas as $item)
+    {{ $item['id'] }}
+    {{ $item['nama_lengkap'] }}
+@endforeach --}}
 @section('content')
     <!-- Content Header (Page header) -->
     <div class="content-header">
@@ -57,9 +62,10 @@ $hari_ini = date('d-m-yy');
                                             <select class="form-control" id="selectid_balita" name="id_balita"
                                                 style="width: 100%;">
                                                 <option value=""></option>
-                                                @foreach ($balitas as $balita)
-                                                    <option value="{{ encrypt($balita->id) }}">
-                                                        {{ $balita->nama_lengkap }}
+
+                                                @foreach ($balitas as $item)
+                                                    <option value="{{ encrypt($item['id']) }}">
+                                                        {{ $item['nama_lengkap'] }}
                                                     </option>
                                                 @endforeach
                                             </select>
@@ -97,6 +103,15 @@ $hari_ini = date('d-m-yy');
                                         <div class="form-group">
                                             <div class="row">
                                                 <div class="col-md-6">
+                                                    {{-- <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text">
+                                                                <input type="checkbox" id="hb0">
+                                                            </span>
+                                                        </div>
+                                                        <input type="text" class="form-control datepicker" name="imun[hb0]" autocomplete="off">
+                                                    </div> --}}
+                                                    <!-- /input-group -->
                                                     <div class="custom-control custom-checkbox">
                                                         <input class="custom-control-input" type="checkbox" id="hb0"
                                                             name="imun[]" value="hb0">
@@ -301,6 +316,8 @@ $hari_ini = date('d-m-yy');
 @push('js')
     <script type="text/javascript">
         $(function() {
+            $(".datepicker").datepicker();
+
             $('#selectid_balita').select2({
                 theme: 'bootstrap4',
                 placeholder: 'Pilih/Cari Nama Balita'
@@ -309,13 +326,6 @@ $hari_ini = date('d-m-yy');
             $('#selectjenis_kelamin').select2({
                 theme: 'bootstrap4',
                 placeholder: 'Pilih Jenis Kelamin'
-            });
-
-            var Toast = Swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000
             });
 
             // search nama balita dan set data ke dalam input
@@ -372,19 +382,18 @@ $hari_ini = date('d-m-yy');
                             $("#imunisasi_nama_ayah").text();
                             $("#imunisasi_nama_ibu").text();
                             $('#imunisasi_info_ortu').hide();
-                            Toast.fire({
-                                icon: 'success',
-                                title: 'Berhasil Menambah/Update Data Imunisasi.'
-                            });
+                            toastr.success('Berhasil Menambah/Update Data Imunisasi.');
                         }
                     },
                     error: (response) => {
                         if (response.responseJSON.errors) {
+                            toastr.error('Gagal Menambah/Update Data Imunisasi.');
                             $.each(response.responseJSON.errors, function(index, value) {
                                 $("#formTambahImunisasi #select" + index)
                                     .addClass('is-invalid');
                                 $("#formTambahImunisasi .select2").after(
-                                    '<span style="color: #dc3545;" class="text-sm">nama balita wajib di isi</span>');
+                                    '<span style="color: #dc3545;" class="text-sm">nama balita wajib di isi</span>'
+                                );
                             });
                         }
                     }
@@ -409,10 +418,12 @@ $hari_ini = date('d-m-yy');
                             let option = new Option(response.nama_balita, response.id, true,
                                 true);
                             $("#selectid_balita").append(option);
+                            toastr.success('Berhasil Menambah Data Balita.');
                         }
                     },
                     error: function(response) {
                         if (response.responseJSON.errors) {
+                            toastr.error('Gagal Menambah Data Balita.');
                             $.each(response.responseJSON.errors, function(index, value) {
                                 if ($("#formTambahBalita #input" + index).length) {
                                     $("#formTambahBalita #input" + index)

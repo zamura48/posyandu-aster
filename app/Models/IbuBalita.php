@@ -19,6 +19,8 @@ class IbuBalita extends Model
         'nomor_telepon',
         'nama_ayah',
         'pekerjaan_ayah',
+        'rt',
+        'rw',
         'user_id'
     ];
 

@@ -9,14 +9,15 @@ class TimbangdanVitamin extends Model
 {
     use HasFactory;
 
-    protected $table = 'timbangdan_vitamins';
+    protected $table = 'pemberian_vitamins';
     protected $fillable = [
         'vitamin_a',
         'bb',
         'tb',
         'aksi_eksklusif',
         'inisiatif_menyusui_dini',
-        'balita_id'
+        'balita_id',
+        'date_input'
     ];
 
     public function balita()

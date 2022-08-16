@@ -2,6 +2,7 @@
 
 use App\Models\IbuBalita;
 use App\Models\Kader;
+use App\Models\Ortu;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -23,7 +24,8 @@ class CreateBalitasTable extends Migration
             $table->enum('jenis_kelamin', ['Laki-Laki', 'Perempuan']);
             $table->integer('bbl')->nullable();
             $table->integer('pb')->nullable();
-            $table->foreignIdFor(IbuBalita::class);
+            $table->tinyInteger('status')->default(1);
+            $table->foreignIdFor(Ortu::class);
             $table->timestamps();
         });
     }

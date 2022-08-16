@@ -14,7 +14,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-    {{-- <link rel="stylesheet" href="//code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css"> --}}
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="{{ asset('vendor/AdminLTE-3.1.0') }}/plugins/fontawesome-free/css/all.min.css">
     <!-- SweetAlert2 -->
@@ -42,50 +42,56 @@ scratch. This page gets rid of all links and provides the needed markup only.
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.2.0/css/datepicker.min.css">
 </head>
 
-<body class="hold-transition sidebar-mini">
-    <div class="wrapper">
+<body class="{{ $activePage == 'Registrasi' ? 'hold-transition register-page' : 'hold-transition sidebar-mini' }}">
+    @guest
+        @yield('registrasi')
+    @endguest
+    @auth
+        <div class="wrapper">
 
-        <!-- Preloader -->
-        <div class="preloader flex-column justify-content-center align-items-center">
-            <img class="animation__shake" src="{{ asset('disk/logo_posyandu.png') }}" alt="PosyanduLogo" height="60"
-                width="60">
-        </div>
-
-        <!-- Navbar -->
-        @include('layouts.header')
-        <!-- /.navbar -->
-
-        <!-- Main Sidebar Container -->
-        @include('layouts.sidebar')
-
-        <!-- Content Wrapper. Contains page content -->
-        <div class="content-wrapper">
-            <!-- Main content -->
-            @yield('content')
-            <!-- /.content -->
-        </div>
-        <!-- /.content-wrapper -->
-
-        <!-- Control Sidebar -->
-        <aside class="control-sidebar control-sidebar-white">
-            <!-- Control sidebar content goes here -->
-            <div class="p-3">
-                <h5>Title</h5>
-                <p>Sidebar content</p>
+            <!-- Preloader -->
+            <div class="preloader flex-column justify-content-center align-items-center">
+                <img class="animation__shake" src="{{ asset('disk/logo_posyandu.png') }}" alt="PosyanduLogo"
+                    height="60" width="60">
             </div>
-        </aside>
-        <!-- /.control-sidebar -->
 
-        <!-- Main Footer -->
-        @include('layouts.footer')
-    </div>
-    <!-- ./wrapper -->
+            <!-- Navbar -->
+            @include('layouts.header')
+            <!-- /.navbar -->
+
+            <!-- Main Sidebar Container -->
+            @include('layouts.sidebar')
+
+            <!-- Content Wrapper. Contains page content -->
+            <div class="content-wrapper">
+                <!-- Main content -->
+                @yield('content')
+                <!-- /.content -->
+            </div>
+            <!-- /.content-wrapper -->
+
+            <!-- Control Sidebar -->
+            <aside class="control-sidebar control-sidebar-white">
+                <!-- Control sidebar content goes here -->
+                <div class="p-3">
+                    <h5>Title</h5>
+                    <p>Sidebar content</p>
+                </div>
+            </aside>
+            <!-- /.control-sidebar -->
+
+            <!-- Main Footer -->
+            @include('layouts.footer')
+        </div>
+        <!-- ./wrapper -->
+    @endauth
 
     <!-- REQUIRED SCRIPTS -->
 
     <!-- jQuery -->
     <script src="{{ asset('vendor/AdminLTE-3.1.0') }}/plugins/jquery/jquery.min.js"></script>
-    {{-- <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script> --}}
+    {{-- jquery ui --}}
+    <script src="{{ asset('vendor/AdminLTE-3.1.0/plugins/jquery-ui/jquery-ui.js') }}"></script>
     <!-- Bootstrap 4 -->
     <script src="{{ asset('vendor/AdminLTE-3.1.0') }}/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
     <!-- AdminLTE App -->
@@ -111,14 +117,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <script src="{{ asset('vendor/AdminLTE-3.1.0') }}/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
     <script src="{{ asset('vendor/AdminLTE-3.1.0') }}/plugins/datatables-buttons/js/buttons.print.min.js"></script>
     <script src="{{ asset('vendor/AdminLTE-3.1.0') }}/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
-    {{-- jquery ui --}}
-    <script src="{{ asset('vendor/AdminLTE-3.1.0/plugins/jquery-ui/jquery-ui.js') }}"></script>
     <!-- Bootstrap Switch -->
     <script src="{{ asset('vendor/AdminLTE-3.1.0') }}/plugins/bootstrap-switch/js/bootstrap-switch.min.js"></script>
     <!-- ChartJS -->
     <script src="{{ asset('vendor/AdminLTE-3.1.0') }}/plugins/chart.js/Chart.min.js"></script>
-    {{-- Highchart --}}
-    <script src="{{ asset('vendor/AdminLTE-3.1.0/plugins/highchart/highcharts.js') }}"></script>
     {{-- daterange --}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.2.0/js/bootstrap-datepicker.min.js"></script>
     {{-- push js form yield content --}}

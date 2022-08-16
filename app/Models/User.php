@@ -21,6 +21,7 @@ class User extends Authenticatable
         'id',
         'role',
         'username',
+        'name',
         'email',
         'password',
         'status'
@@ -45,13 +46,23 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function kader()
+    public function ketua()
     {
-        return $this->hasOne(Kader::class, 'user_id', 'id');
+        return $this->hasOne(Ortu::class, 'user_id', 'id');
     }
 
-    public function ibu_balita()
+    public function kader()
     {
-        return $this->hasOne(IbuBalita::class, 'user_id', 'id');
+        return $this->hasOne(Ortu::class, 'user_id', 'id');
+    }
+
+    public function ortu()
+    {
+        return $this->hasOne(Ortu::class, 'user_id', 'id');
+    }
+
+    public function getRtRw()
+    {
+        return Ortu::select('rt', 'rw')->where('user_id', auth()->user()->id)->first();;
     }
 }

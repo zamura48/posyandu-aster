@@ -2,6 +2,7 @@
 
 use App\Models\IbuHamil;
 use App\Models\Kader;
+use App\Models\Ortu;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -20,7 +21,7 @@ class CreateRiwayatIbuHamilsTable extends Migration
             $table->integer('umur_kehamilan');
             $table->string('hasil_pemeriksaan');
             $table->foreignIdFor(Kader::class);
-            $table->foreignIdFor(IbuHamil::class);
+            $table->foreignIdFor(Ortu::class);
             $table->timestamps();
         });
     }

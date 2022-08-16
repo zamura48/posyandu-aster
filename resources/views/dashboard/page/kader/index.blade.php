@@ -34,13 +34,14 @@
                 </div>
                 <!-- /.card-header -->
                 <div class="card-body">
-                    <table id="table-kader" class="table table-bordered table-hover">
+                    <table id="table-kader" class="table table-bordered table-hover text-nowrap">
                         <thead>
                             <tr>
                                 <th>NIK</th>
                                 <th>Nama</th>
                                 <th>Posisi</th>
-                                <th>Nomor Telepon</th>
+                                <th>RT</th>
+                                <th>RW</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -70,37 +71,49 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label for="inputnik">NIK</label>
-                                    <input type="text" id="inputnik" name="nik" class="form-control">
+                                    <label for="inputnik">NIK <span class="text-danger">*</span></label>
+                                    <input type="text" id="inputnik" name="nik" class="form-control" placeholder="Contoh: 1234567890123456">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label for="inputnama_lengkap">Nama Lengkap</label>
-                                    <input type="text" id="inputnama_lengkap" name="nama_lengkap" class="form-control">
+                                    <label for="inputnama_lengkap">Nama Lengkap <span class="text-danger">*</span></label>
+                                    <input type="text" id="inputnama_lengkap" name="nama_lengkap" class="form-control" placeholder="Contoh: Siti">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label for="inputtanggal_lahir">Tanggal Lahir</label>
-                                    <input type="date" id="inputtanggal_lahir" name="tanggal_lahir" class="form-control">
+                                    <label for="inputtanggal_lahir">Tanggal Lahir <span class="text-danger">*</span></label>
+                                    <input type="text" id="inputtanggal_lahir" name="tanggal_lahir" class="form-control datepicker" autocomplete="off" placeholder="Contoh: 1999-11-11">
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="form-group">
-                                    <label for="inputalamat">Alamat</label>
-                                    <input type="text" id="inputalamat" name="alamat" class="form-control">
+                                    <label for="inputalamat">Alamat <span class="text-danger">*</span></label>
+                                    <input type="text" id="inputalamat" name="alamat" class="form-control" placeholder="Contoh: Jl. KH. Hasyim">
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-2">
                                 <div class="form-group">
-                                    <label for="inputnomor_telepon">Nomor Telepon</label>
-                                    <input type="text" id="inputnomor_telepon" name="nomor_telepon" class="form-control">
+                                    <label for="inputrt">RT <span class="text-danger">*</span></label>
+                                    <input type="text" id="inputrt" name="rt" class="form-control" placeholder="Contoh: 3">
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-2">
                                 <div class="form-group">
-                                    <label for="selectrole">Role</label>
+                                    <label for="inputrw">RW <span class="text-danger">*</span></label>
+                                    <input type="text" id="inputrw" name="rw" class="form-control" placeholder="Contoh: 9">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="inputnomor_telepon">Nomor Telepon <span class="text-danger">*</span></label>
+                                    <input type="text" id="inputnomor_telepon" name="nomor_telepon" class="form-control" placeholder="Contoh: 088217643823">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label for="selectrole">Role <span class="text-danger">*</span></label>
                                     <select class="custom-select rounded-0" id="selectrole" name="role">
                                         <option value=""></option>
                                         <option value="Ketua">Ketua</option>
@@ -137,49 +150,57 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label for="inputnik">NIK</label>
+                                    <label for="inputnik">NIK <span class="text-danger">*</span></label>
                                     <input type="text" id="inputid" name="id" class="form-control">
-                                    <input type="text" id="inputnik" name="nik" class="form-control">
+                                    <input type="text" id="inputnik" name="nik" class="form-control" placeholder="Contoh: 1234567890123456">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label for="inputnama_lengkap">Nama Lengkap</label>
-                                    <input type="text" id="inputnama_lengkap" name="nama_lengkap" class="form-control">
+                                    <label for="inputnama_lengkap">Nama Lengkap <span class="text-danger">*</span></label>
+                                    <input type="text" id="inputnama_lengkap" name="nama_lengkap" class="form-control" placeholder="Contoh: Siti">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label for="inputtanggal_lahir">Tanggal Lahir</label>
-                                    <input type="date" id="inputtanggal_lahir" name="tanggal_lahir" class="form-control">
+                                    <label for="inputtanggal_lahir">Tanggal Lahir <span class="text-danger">*</span></label>
+                                    <input type="text" id="inputtanggal_lahir" name="tanggal_lahir" class="form-control datepicker" autocomplete="off" placeholder="Contoh: 1999-11-11">
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="form-group">
-                                    <label for="inputalamat">Alamat</label>
-                                    <input type="text" id="inputalamat" name="alamat" class="form-control">
+                                    <label for="inputalamat">Alamat <span class="text-danger">*</span></label>
+                                    <input type="text" id="inputalamat" name="alamat" class="form-control" placeholder="Contoh: Jl. KH. Hasyim">
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-2">
                                 <div class="form-group">
-                                    <label for="inputnomor_telepon">Nomor Telepon</label>
-                                    <input type="text" id="inputnomor_telepon" name="nomor_telepon" class="form-control">
+                                    <label for="inputrt">RT <span class="text-danger">*</span></label>
+                                    <input type="text" id="inputrt" name="rt" class="form-control" placeholder="Contoh: 3">
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-2">
                                 <div class="form-group">
-                                    <label for="selectrole">Role</label>
+                                    <label for="inputrw">RW <span class="text-danger">*</span></label>
+                                    <input type="text" id="inputrw" name="rw" class="form-control" placeholder="Contoh: 9">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="inputnomor_telepon">Nomor Telepon <span class="text-danger">*</span></label>
+                                    <input type="text" id="inputnomor_telepon" name="nomor_telepon" class="form-control" placeholder="Contoh: 088217643823">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label for="selectrole">Role <span class="text-danger">*</span></label>
                                     <select class="custom-select rounded-0" id="selectrole" name="role">
+                                        <option value=""></option>
                                         <option value="Ketua">Ketua</option>
                                         <option value="Kader">Kader</option>
                                     </select>
                                 </div>
                             </div>
-                            {{-- <div class="col-md-4" id="switch_user">
-                                <div class="form-group">
-                                    <label for="selectrole">User Aktif</label>
-                                </div>
-                            </div> --}}
                         </div>
                     </div>
                     <div class="modal-footer justify-content-between">
@@ -198,54 +219,57 @@
 @push('js')
     <script>
         $(function() {
-            $("#selectrole").select2({
-                theme: 'bootstrap4',
-                placeholder: 'Pilih Role / Posisi'
+            $(".datepicker").datepicker({
+                format: "yyyy-mm-dd",
+                autoclose: true
             });
 
-            var Toast = Swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000
+            $("#selectrole").select2({
+                theme: 'bootstrap4',
+                placeholder: 'Pilih Role / Posisi',
+                minimumResultsForSearch: -1
             });
 
             $('#table-kader').DataTable({
                 scrollX: true,
                 scrollCollapse: true,
-                fixedColumns: {
-                    left: 1
-                },
                 ajax: 'kader',
                 columns: [{
                         data: 'nik',
                         name: 'nik',
-                        width: '15%'
+                        width: '20%'
                     },
                     {
-                        data: 'nama_lengkap',
-                        name: 'nama_lengkap'
+                        data: 'nama_istri',
+                        name: 'nama_istri',
+                        width: '20%'
                     },
                     {
                         data: 'user.role',
-                        name: 'user.role'
+                        name: 'user.role',
+                        width: '15%'
                     },
                     {
-                        data: 'nomor_telepon',
-                        name: 'nomor_telepon',
-                        orderable: false
+                        data: 'rt',
+                        name: 'rt',
+                        width: '15%'
+                    },
+                    {
+                        data: 'rw',
+                        name: 'rw',
+                        width: '15%'
                     },
                     {
                         data: 'aksi',
-                        width: '24%',
-                        orderable: false
+                        orderable: false,
+                        width: '16%'
                     }
                 ]
             });
 
             $("#formTambahKader").submit(function(e) {
                 e.preventDefault();
-
+                removeError("TambahKader");
                 var formData = new FormData(this);
 
                 $.ajax({
@@ -259,29 +283,17 @@
                             $("#table-kader").DataTable().ajax.reload(null, false);
                             $("#modalTambahKader").modal('toggle');
                             $('#formTambahKader')[0].reset();
-                            Toast.fire({
-                                icon: 'success',
-                                title: 'Berhasil Menambah Data Kader Baru.'
-                            });
+                            toastr.success('Berhasil Menambah Data Kader Baru.');
                         }
                     },
                     error: (response) => {
-                        if (response.responseJSON.errors) {
+                        if (response.status == 422) {
+                            toastr.error('Gagal Menambah Data Kader.');
                             $.each(response.responseJSON.errors, function(index, value) {
-                                if ($("#formTambahKader #input" + index).length) {
-                                    $("#formTambahKader #input" + index).addClass(
-                                        'is-invalid').after('<span id="input' +
-                                        index +
-                                        '-error" class="error invalid-feedback">' +
-                                        value + '</span>');
-                                } else {
-                                    $("#formTambahKader #select" + index)
-                                        .addClass('is-invalid');
-                                    $("#formTambahKader .select2").after(
-                                        '<span style="color: #dc3545;" class="text-sm">' +
-                                        value + '</span>');
-                                }
+                                errorFrom("TambahKader", index, value);
                             });
+                        } else {
+                            toastr.error(response.responseJSON.message);
                         }
                     }
                 });
@@ -289,7 +301,7 @@
 
             $("#formUbahKader").submit(function(e) {
                 e.preventDefault();
-
+                removeError("UbahKader");
                 var formData = new FormData(this);
                 var id = "";
 
@@ -310,29 +322,17 @@
                             $("#table-kader").DataTable().ajax.reload(null, false);
                             $("#modalUbahKader").modal('toggle');
                             $("#formUbahKader")[0].reset();
-                            Toast.fire({
-                                icon: 'success',
-                                title: 'Berhasil Mengubah Data Kader.'
-                            });
+                            toastr.success('Berhasil Mengubah Data Kader.');
                         }
                     },
                     error: (response) => {
-                        if (response.responseJSON.errors) {
+                        if (response.status = 422) {
+                            toastr.error('Gagal Mengubah Data Kader.');
                             $.each(response.responseJSON.errors, function(index, value) {
-                                if ($("#formUbahKader #input" + index).length) {
-                                    $("#formUbahKader #input" + index).addClass(
-                                        'is-invalid').after('<span id="input' +
-                                        index +
-                                        '-error" class="error invalid-feedback">' +
-                                        value + '</span>');
-                                } else {
-                                    $("#formUbahKader #select" + index)
-                                        .addClass('is-invalid');
-                                    $("#formUbahKader .select2").after(
-                                        '<span style="color: #dc3545;" class="text-sm">' +
-                                        value + '</span>');
-                                }
+                                errorFrom("UbahKader", index, value);
                             });
+                        } else {
+                            toastr.error(response.responseJSON.message);
                         }
                     }
                 });
@@ -345,10 +345,12 @@
                     const d = JSON.parse(atob(data));
                     $("#formUbahKader #inputid").val(btoa(d.id)).hide();
                     $("#formUbahKader #inputnik").val(d.nik);
-                    $("#formUbahKader #inputnama_lengkap").val(d.nama_lengkap);
+                    $("#formUbahKader #inputnama_lengkap").val(d.nama_istri);
                     $("#formUbahKader #inputtanggal_lahir").val(d.tanggal_lahir);
                     $("#formUbahKader #inputalamat").val(d.alamat);
                     $("#formUbahKader #inputnomor_telepon").val(d.nomor_telepon);
+                    $("#formUbahKader #inputrt").val(d.rt);
+                    $("#formUbahKader #inputrw").val(d.rw);
                     $("#formUbahKader #selectrole").val(d.user.role);
                     $("#modalUbahKader").modal('toggle');
                 }
@@ -356,19 +358,68 @@
         }
 
         function hapusDataKader(id) {
-            $.ajax({
-                type: "POST",
-                url: "kader/delete/" + id,
-                data: {
-                    id: id,
-                    _token: $("meta[name=csrf-token]").attr('content')
+            Swal.fire({
+                title: 'Apakah kamu yakin, menghapus data ini ?',
+                showClass: {
+                    popup: 'animated__animated animated__fadeIn'
                 },
-                success: function(response) {
-                    if (response == 200) {
-                        $("#table-kader").DataTable().ajax.reload(null, false);
-                    }
+                hideClass: {
+                    popup: 'animated__animated animated__fadeOut'
+                },
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, Hapus!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: "POST",
+                        url: "kader/delete/" + id,
+                        data: {
+                            id: id,
+                            _token: $("meta[name=csrf-token]").attr('content')
+                        },
+                        success: function(response) {
+                            if (response == 200) {
+                                toastr.success('Berhasil Menghapus Data Kader.');
+                                $("#table-kader").DataTable().ajax.reload(null, false);
+                            }
+                        },
+                        error: (response) => {
+                            if (response.status == 422) {
+                                toastr.error('Gagal Menghapus Data Kader.');
+                            } else {
+                            toastr.error(response.responseJSON.message);
+                        }
+                        }
+                    });
                 }
-            });
+            })
+        }
+
+        // METHOD UNTUK MENAMPILKAN ERROR SESUAI DENGAN INPUTNYA
+        function errorFrom(aksi, index, value) {
+            if ($("#form" + aksi + " #input" + index).length) {
+                $("#form" + aksi + " #input" + index).addClass('is-invalid')
+                    .after('<span id="input' + index + '-error" class="error invalid-feedback">' + value +
+                        '</span>');
+            } else {
+                $("#form" + aksi + " #select" + index)
+                    .addClass('is-invalid');
+                $("#form" + aksi + " .select2").after(
+                    '<span style="color: #dc3545;" class="text-sm">' + value + '</span>');
+            }
+        }
+
+        // METHOD UNTUK MENGHAPUS/REMOVE ERROR YANG TAMPIL
+        function removeError(aksi) {
+            if ($("#form" + aksi + " .is-invalid").length) {
+                $("#form" + aksi + " input.is-invalid").removeClass('is-invalid');
+                $("#form" + aksi + " select.is-invalid").removeClass('is-invalid');
+                $("#form" + aksi + " span.error").remove();
+                $("#form" + aksi + " span.text-sm").remove();
+            }
         }
     </script>
 @endpush

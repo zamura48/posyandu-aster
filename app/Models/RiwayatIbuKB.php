@@ -16,11 +16,16 @@ class RiwayatIbuKB extends Model
         'suntik_akhir',
         'hasil_pemeriksaan',
         'kader_id',
-        'ibu_k_b_id'
+        'ortu_id'
     ];
+
+    public function kader()
+    {
+        return $this->hasOne(Kader::class, 'id', 'kader_id');
+    }
 
     public function ibu_kb()
     {
-        return $this->belongsTo(IbuKB::class);
+        return $this->hasOne(Ortu::class, 'id', 'ortu_id');
     }
 }

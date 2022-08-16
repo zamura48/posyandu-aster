@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Kader;
+use App\Models\Ortu;
+use App\Models\RiwayatIbuHamil;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -18,13 +20,16 @@ class KaderController extends Controller
      */
     public function index(Request $request)
     {
-        // dd(auth()->user()->id);
-        $data = Kader::all()->load('user');
-
         if ($request->ajax()) {
+            $data = Ortu::join('users', 'ortus.user_id', '=', 'users.id')
+            ->select('ortus.*')
+            ->where('users.role', 'Kader')
+            ->orWhere('users.role', 'Ketua')
+            ->get()->load('user');
+
             return DataTables::of($data)
                 ->addColumn('aksi', function ($model) {
-                    $button = '<button type="button" class="btn btn-primary btn-sm" onclick="detailDataKader(' . $model->id . ')"><i class="fa fa-list"></i> Detail</button> <button type="button" class="btn btn-warning btn-sm" onclick="ubahDataKader(' . $model->id . ')"><i class="fa fa-edit"></i> Ubah</button> <button type="button" class="btn btn-danger btn-sm" onclick="hapusDataKader(' . $model->id . ')"><i class="fa fa-trash"></i> Hapus</button>';
+                    $button = '<div class="btn-group"><a href="' . route('kader.show',$model->id) . '" type="button" class="btn btn-info btn-sm"><i class="fa fa-list"></i> Detail</a> <button type="button" class="btn btn-warning btn-sm" onclick="ubahDataKader(' . $model->id . ')"><i class="fa fa-edit"></i> Ubah</button> <button type="button" class="btn btn-danger btn-sm" onclick="hapusDataKader(' . $model->id . ')"><i class="fa fa-trash"></i> Hapus</button></div>';
                     return $button;
                 })
                 ->rawColumns(['aksi'])
@@ -54,11 +59,11 @@ class KaderController extends Controller
     {
         $request->validate([
             'nik' => ['required', 'unique:kaders', 'min:16', 'max:16'],
-            'nama_lengkap' => ['required'],
-            'tanggal_lahir' => ['required'],
-            'alamat' => ['required'],
+            'nama_lengkap' => ['required', 'string'],
+            'tanggal_lahir' => ['required', 'date'],
+            'alamat' => ['required', 'string'],
             'nomor_telepon' => ['required', 'numeric'],
-            'role' => ['required']
+            'role' => ['required', 'string']
         ]);
 
         $get_first_name = str_word_count($request->nama_lengkap, 2);
@@ -66,16 +71,20 @@ class KaderController extends Controller
 
         $user = User::create([
             'username' => $username,
+            'name' => $request->nama_lengkap,
             'role' => $request->role,
             'password' => Hash::make($request->nomor_telepon),
             'status' => '1'
         ]);
 
-        Kader::create([
+        Ortu::create([
             'nik' => $request->nik,
-            'nama_lengkap' => $request->nama_lengkap,
+            'nama_istri' => $request->nama_lengkap,
+            'pekerjaan_istri' => 'Kader',
             'tanggal_lahir' => $request->tanggal_lahir,
             'alamat' => $request->alamat,
+            'rt' => $request->rt,
+            'rw' => $request->rw,
             'nomor_telepon' => $request->nomor_telepon,
             'user_id' => $user->id
         ]);
@@ -91,10 +100,16 @@ class KaderController extends Controller
      */
     public function show($kader)
     {
-        $data = Kader::findOrFail($kader)->load('user');
+        $data = Ortu::findOrFail($kader)->load('user');
+        $ibu_hamils = RiwayatIbuHamil::where('kader_id', $data->id)->groupBy('ortu_id')->get()->load('ibu_hamil');
 
-        // return json
-        return response()->json($data);
+        $datas = [
+            'activePage' => "Detail Kader - $data->nama_istri",
+            'data' => $data,
+            'ibu_hamils' => $ibu_hamils
+        ];
+
+        return view('dashboard.page.kader.show', $datas);
     }
 
     /**
@@ -105,7 +120,7 @@ class KaderController extends Controller
      */
     public function edit($kader)
     {
-        $data = Kader::findOrFail($kader)->load('user');
+        $data = Ortu::findOrFail($kader)->load('user');
 
         return response()->json(base64_encode(json_encode($data)));
     }
@@ -119,14 +134,29 @@ class KaderController extends Controller
      */
     public function update(Request $request, $kader)
     {
-        $data = Kader::findOrFail(base64_decode($kader));
-        $data->nama_lengkap = $request->nama_lengkap;
+        $request->validate([
+            'nik' => ['required', 'min:16', 'max:16'],
+            'nama_lengkap' => ['required', 'string'],
+            'tanggal_lahir' => ['required', 'date'],
+            'alamat' => ['required', 'string'],
+            'rw' => ['required', 'numeric'],
+            'rt' => ['required', 'numeric'],
+            'nomor_telepon' => ['required', 'numeric'],
+            'role' => ['required', 'string']
+        ]);
+
+        $data = Ortu::findOrFail(base64_decode($kader));
+        $data->nik = $request->nik;
+        $data->nama_istri = $request->nama_lengkap;
         $data->tanggal_lahir = $request->tanggal_lahir;
         $data->alamat = $request->alamat;
+        $data->rt = $request->rt;
+        $data->rw = $request->rw;
         $data->nomor_telepon = $request->nomor_telepon;
+        $data->user->role = $request->role;
+        $data->user->name = $request->name;
+        $data->user->save();
         $data->save();
-
-        $user = User::findOrFail($data->user_id)->update(['role'=>$request->role]);
 
         return response()->json(200);
     }
@@ -139,7 +169,9 @@ class KaderController extends Controller
      */
     public function destroy($kader)
     {
-        Kader::findOrFail($kader)->delete();
+        $kader = Ortu::findOrFail($kader)->load('user');
+        $kader->user->delete();
+        $kader->delete();
 
         return response()->json(200);
     }

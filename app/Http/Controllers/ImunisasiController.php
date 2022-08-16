@@ -2,18 +2,26 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ImunisasiExport;
 use App\Models\Balita;
 use App\Models\IbuBalita;
 use App\Models\Imunisasi;
+use App\Models\JenisVaksiImunisasi;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\DataTables;
 use Validator;
 
 class ImunisasiController extends Controller
 {
+    public $imunisasi;
 
-    public $data;
+    public function __construct()
+    {
+        $this->imunisasi = new Imunisasi();
+    }
     /**
      * Display a listing of the resource.
      *
@@ -21,22 +29,30 @@ class ImunisasiController extends Controller
      */
     public function index(Request $request)
     {
+        // $data = $this->imunisasi->getDataImunisasi()->get()->dd();
         if ($request->ajax()) {
-            if (empty($request->form_date) && empty($request->to_date)) {
-                $data = Imunisasi::all()->load('balita');
+            if (empty($request->tahun)) {
+                $data = $this->imunisasi->getDataImunisasi()->get();
             } else {
-                $data = Imunisasi::whereBetween('hb0', [$request->form_date, $request->to_date])->get()->load('balita');
+                $data = $this->imunisasi->getDataImunisasi()->whereYear('tanggal', $request->tahun)->get();
             }
             return DataTables::of($data)
                 ->addColumn('aksi', function ($model) {
-                    $button = '<button type="button" class="btn btn-primary btn-sm" onclick="detailDataImunisasi(' . $model->id . ')"><i class="fa fa-list"></i> Detail</button> <button type="button" class="btn btn-warning btn-sm" onclick="ubahDataImunisasi(' . $model->id . ')"><i class="fa fa-edit"></i> Ubah</button> <button type="button" class="btn btn-danger btn-sm" onclick="hapusDataImunisasi(' . $model->id . ')"><i class="fa fa-trash"></i> Hapus</button>';
+                    $button = '<div class="btn-group"><button type="button" class="btn btn-warning btn-sm" onclick="ubahDataImunisasi(' . $model->balita->id . ')"><i class="fa fa-edit"></i> Ubah</button> <button type="button" class="btn btn-danger btn-sm" onclick="hapusDataImunisasi(' . $model->id . ')"><i class="fa fa-trash"></i> Hapus</button></div>';
                     return $button;
                 })
                 ->rawColumns(['aksi'])
                 ->toJson();
         }
 
-        return view('dashboard.page.imunisasi.index', ['activePage' => 'Imunisasi']);
+        $jenis_vaksin = JenisVaksiImunisasi::all();
+
+        $datas = [
+            'activePage' => 'Imunisasi',
+            'jenis_vaksin' => $jenis_vaksin,
+        ];
+
+        return view('dashboard.page.imunisasi.index', $datas);
     }
 
     /**
@@ -46,62 +62,84 @@ class ImunisasiController extends Controller
      */
     public function create()
     {
-        $balita = Balita::orderby('nama_lengkap', 'asc')->get();
+        $balitas = Balita::orderby('nama_lengkap', 'asc')->get();
+        $balita = array();
+        foreach ($balitas as $b) {
+            $hitung_umur = Carbon::parse($b->tanggal_lahir)->diff(Carbon::now());
+            if ($hitung_umur->format('%y Tahun') != "3 Tahun") {
+                $balita[] = array(
+                    "id" => $b->id,
+                    "nama_lengkap" => $b->nama_lengkap
+                );
+            }
+        }
+
         $datas = [
             'balitas' => $balita,
             'activePage' => 'Tambah Data Imunisasi'
         ];
 
-        return view('dashboard.page.imunisasi.create', $datas);
+        // return view('dashboard.page.imunisasi.create', $datas);
+        // return view('dashboard.page.imunisasi.tambah', $datas);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
-        $request->validate(['id_balita' => ['required']]);
+        $request->validate([
+            'nama_balita' => ['required'],
+            'jenis_vaksin' => ['required']
+        ]);
 
-        $arrays = [
-            "hb0" => "hb0",
-            "bcg" => "bcg",
-            "p1" => "p1",
-            "p2" => "p2",
-            "p3" => "p3",
-            "p4" => "p4",
-            "dpt1" => "dpt1",
-            "dpt2" => "dpt2",
-            "dpt3" => "dpt3",
-            "pcv1" => "pcv1",
-            "pcv2" => "pcv2",
-            "pcv3" => "pcv3",
-            "ipv" => "ipv",
-            "campak" => "campak"
-        ];
+        $balita_id = decrypt($request->nama_balita);
+        $vaksin = JenisVaksiImunisasi::select('id');
+        $vaksin_id = $vaksin->where('jenis_vaksin', $request->jenis_vaksin)->first();
 
-        foreach ($request->imun as $key => $value) {
-            if ($request->imun[$key] == $arrays[$value]) {
-                unset($arrays[$value]);
+        if ($vaksin_id->id <= 1) {
+            Imunisasi::create([
+                "jenis_vaksin" => $request->jenis_vaksin,
+                "tanggal" => $request->tanggal_input,
+                "balita_id" => $balita_id,
+            ]);
+        } else {
+            $vaksin_sebelumnya = JenisVaksiImunisasi::findOrFail($vaksin_id->id-1);
+            $imunisasi_sebelumnya = Imunisasi::where('jenis_vaksin', $vaksin_sebelumnya->jenis_vaksin)
+            ->where('balita_id', $balita_id)->first();
+
+            if (empty($imunisasi_sebelumnya)) {
+                return response()->json(['message' => "Balita tersebut belum Imunisasi ".strtoupper($vaksin_sebelumnya->jenis_vaksin)], 500);
+            } else {
+                Imunisasi::create([
+                    "jenis_vaksin" => $request->jenis_vaksin,
+                    "tanggal" => $request->tanggal_input,
+                    "balita_id" => $balita_id,
+                ]);
             }
         }
 
-        $balita = Balita::findOrFail(decrypt($request->id_balita));
+        return response()->json(200);
+    }
 
-        foreach ($request->imun as $key => $value) {
-            if (is_null($balita->imunisasi)) {
-                Imunisasi::updateOrCreate(['balita_id' => $balita->id], ['' . $value . '' => Carbon::now()->toDateString()]);
-            } else {
-                if (is_null($balita->imunisasi->$value)) {
-                    Imunisasi::updateOrCreate(['balita_id' => $balita->id], ['' . $value . '' => Carbon::now()->toDateString()]);
-                } else {
-                    foreach ($arrays as $key => $value) {
-                        Imunisasi::updateOrCreate(['balita_id' => $balita->id], ['' . $value . '' => null]);
+    public function storeOld(Request $request)
+    {
+        $request->validate(['nama_balita' => ['required']]);
+
+        $checkbox = $request->checkbox;
+        $vaksin = $request->vaksi;
+        $balita_id = decrypt($request->nama_balita);
+        if (!empty($checkbox) && !empty($vaksin)) {
+            foreach ($checkbox as $key_cb => $value_cb) {
+                foreach ($vaksin as $key_vaksin => $value_vaksin) {
+                    if ($key_cb == $key_vaksin) {
+                        Imunisasi::create([
+                            "jenis_vaksin" => $key_vaksin,
+                            "tanggal" => $value_vaksin,
+                            "balita_id" => $balita_id,
+                        ]);
                     }
                 }
             }
+        } else {
+            return response()->json(['message' => 'Pastikan untuk mencentang dan mengisi form'], 500);
         }
 
         return response()->json(200);
@@ -113,11 +151,11 @@ class ImunisasiController extends Controller
      * @param  \App\Models\Imunisasi  $imunisasi
      * @return \Illuminate\Http\Response
      */
-    public function show(Imunisasi $imunisasi)
+    public function show($id)
     {
-        $this->data = Imunisasi::findOrFail($imunisasi);
+        $data = Imunisasi::findOrFail($id);
 
-        return response()->json($this->data);
+        return response()->json($data);
     }
 
     /**
@@ -126,11 +164,11 @@ class ImunisasiController extends Controller
      * @param  \App\Models\Imunisasi  $imunisasi
      * @return \Illuminate\Http\Response
      */
-    public function edit(Imunisasi $imunisasi)
+    public function edit($id)
     {
-        $this->data = Imunisasi::findOrFail($imunisasi);
+        $imunisasi = $this->imunisasi->getDataImunisasi()->where('balita_id', $id)->get();
 
-        return response()->json($this->data);
+        return response()->json(compact('imunisasi'));
     }
 
     /**
@@ -140,8 +178,51 @@ class ImunisasiController extends Controller
      * @param  \App\Models\Imunisasi  $imunisasi
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Imunisasi $imunisasi)
+    public function update(Request $request, $id)
     {
+        $arr = [
+            "hb0" => null,
+            "bcg" => null,
+            "p1" => null,
+            "p2" => null,
+            "p3" => null,
+            "p4" => null,
+            "dpt1" => null,
+            "dpt2" => null,
+            "dpt3" => null,
+            "pcv1" => null,
+            "pcv2" => null,
+            "pcv3" => null,
+            "ipv" => null,
+            "campak" => null
+        ];
+
+        $checkbox = $request->checkbox;
+        $vaksin = $request->vaksi;
+
+        if (!empty($checkbox) && !empty($vaksin)) {
+            foreach ($vaksin as $key_vaksin => $value_vaksin) {
+                foreach ($checkbox as $key_cb => $value_cb) {
+                    if ($key_vaksin === $key_cb) {
+                        Imunisasi::updateOrCreate(
+                            ["jenis_vaksin" => $key_vaksin, "balita_id" => $id],
+                            ["tanggal" => $value_vaksin]
+                        );
+                        $arr["$key_cb"] = $value_vaksin;
+                    }
+                }
+            }
+        } elseif (empty($checkbox) || empty($vaksin)) {
+            Imunisasi::where('balita_id', $id)->delete();
+        }
+
+        foreach ($arr as $key => $value) {
+            if (is_null($value)) {
+                Imunisasi::where('balita_id', $id)->where('jenis_vaksin', $key)->delete();
+            }
+        }
+
+        return response()->json(200);
     }
 
     /**
@@ -150,51 +231,15 @@ class ImunisasiController extends Controller
      * @param  \App\Models\Imunisasi  $imunisasi
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Imunisasi $imunisasi)
+    public function destroy($id)
     {
-        Imunisasi::findOrFail($imunisasi)->delete();
+        Imunisasi::where('balita_id', $id)->delete();
 
         return response()->json(200);
     }
 
-    public function getNamaOrtu($imunisasi)
+    public function export(?int $tahun)
     {
-        $balita = Balita::findOrFail(decrypt($imunisasi))->load('ibubalita', 'imunisasi');
-
-        $datas = [
-            'nama_ayah' => $balita->ibuBalita->nama_ayah,
-            'nama_ibu' => $balita->ibuBalita->nama_ibu,
-            'imunisasi' => $balita->imunisasi
-        ];
-
-        return response()->json($datas);
-    }
-
-    public function getNamaBalita(Request $request)
-    {
-        $search = $request->search;
-
-        if ($search == '') {
-            $balitas = Balita::orderBy('nama_lengkap', 'asc')
-                ->select('id', 'nama_lengkap')
-                ->limit(10)
-                ->get();
-        } else {
-            $balitas = Balita::orderBy('nama_lengkap', 'asc')
-                ->select('id', 'nama_lengkap')
-                ->where('nama_lengkap', 'like', '%' . $search . '%')
-                ->limit(10)
-                ->get();
-        }
-
-        $response = array();
-        foreach ($balitas as $balita) {
-            $response[] = array(
-                'id' => $balita->id,
-                'text' => $balita->nama_lengkap
-            );
-        }
-
-        return response()->json($response);
+        return Excel::download(new ImunisasiExport($tahun), "Imunisasi {$tahun}.xlsx");
     }
 }

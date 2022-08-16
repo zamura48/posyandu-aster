@@ -18,19 +18,35 @@ class Balita extends Model
         'jenis_kelamin',
         'bbl',
         'pb',
-        'ibu_balita_id'
+        'proses_lahiran',
+        'tempat_lahiran',
+        'ortu_id'
     ];
-
-    public function ibuBalita()
-    {
-        return $this->hasOne(IbuBalita::class, 'id', 'ibu_balita_id');
-    }
 
     public function imunisasi(){
         return $this->hasOne(Imunisasi::class, 'balita_id', 'id');
     }
 
-    public function pemberian_vitamin(){
-        return $this->hasMany(TimbangdanVitamin::class, 'balita_id', 'id');
+    public function ortu_balita()
+    {
+        return $this->hasOne(Ortu::class, 'id', 'ortu_id');
     }
+
+    public function penimbangan_dan_vitamin()
+    {
+        return $this->hasMany(PenimbanganDanVitamin::class, 'balita_id', 'id');
+    }
+
+    // public function getUmur(id) {
+    //     $balita =
+    //     $hitung_umur = Carbon::parse($request->tanggal_lahir)->diff(Carbon::now());
+
+    //     if ($hitung_umur->format('%y Tahun') == "0 Tahun" || $hitung_umur->format('%y Tahun') == "1 Tahun") {
+    //         Imunisasi::create([
+    //             'balita_id' => $balita->id
+    //         ]);
+    //     }
+
+
+    // }
 }

@@ -24,6 +24,6 @@ class IbuKB extends Model
 
     public function riwayat_ibu_kb()
     {
-        return $this->belognsTo(RiwayatIbuKB::class);
+        return $this->hasOne(RiwayatIbuKB::class, 'ibu_k_b_id', 'id');
     }
 }

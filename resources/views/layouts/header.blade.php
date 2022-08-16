@@ -5,30 +5,36 @@
         <li class="nav-item">
             <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
         </li>
+        <li class="nav-item d-none d-sm-inline-block">
+            @php
+                $rtrw = auth()->user()->getRtRw();
+            @endphp
+            <span class="nav-link"><b> {{ auth()->user()->role }} - RT{{ $rtrw['rt'] }}/RW{{ $rtrw['rw'] }}</b></span>
+        </li>
     </ul>
 
     <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
         <li class="nav-item dropdown user-menu">
             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
-                <span class="d-none d-md-inline"> {{ auth()->user()->role }}</span>
+                <span class="d-none d-md-inline ml-1"> {{ auth()->user()->name }}</span>
                 <span class="info-box-icon"><i class="fas fa-user"></i></span>
             </a>
             <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
                 <!-- User image -->
                 <li class="user-header bg-primary">
-                    <img src="{{ asset('vendor/AdminLTE-3.1.0') }}/dist/img/user2-160x160.jpg"
+                    <img src="{{ asset('disk/avatar.jpg') }}"
                         class="img-circle elevation-2" alt="User Image">
 
                     <p>
-                        {{ auth()->user()->username }} - {{ auth()->user()->role }}
+                        {{ auth()->user()->name }} - {{ auth()->user()->role }}
                     </p>
                 </li>
                 <!-- Menu Footer-->
                 <li class="user-footer">
                     <div class="row">
                         <div class="col-md-6">
-                            <a href="profile/{{ auth()->user()->id }}" class="btn btn-default btn-flat">Profile</a>
+                            <a href="{{ route('profile', base64_encode(auth()->user()->id)) }}" class="btn btn-default btn-flat">Profile</a>
                         </div>
                         <div class="col-md-6">
                             <form action="{{ route('logout') }}" method="POST">

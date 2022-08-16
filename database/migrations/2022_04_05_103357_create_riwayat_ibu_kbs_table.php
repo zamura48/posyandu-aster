@@ -2,6 +2,7 @@
 
 use App\Models\IbuKB;
 use App\Models\Kader;
+use App\Models\Ortu;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -22,7 +23,7 @@ class CreateRiwayatIbuKbsTable extends Migration
             $table->string('suntik_akhir');
             $table->string('hasil_pemeriksaan');
             $table->foreignIdFor(Kader::class);
-            $table->foreignIdFor(IbuKB::class);
+            $table->foreignIdFor(Ortu::class);
             $table->timestamps();
         });
     }

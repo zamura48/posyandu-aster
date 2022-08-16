@@ -16,7 +16,7 @@ class LoginController extends Controller
 
     public function authenticate(Request $request)
     {
-        $credentials = $request->validate([
+        $request->validate([
             'username' => ['required'],
             'password' => ['required']
         ]);
@@ -45,60 +45,68 @@ class LoginController extends Controller
 
     public function profile($id)
     {
-        $data = User::findOrFail($id)->load('kader', 'ibu_balita');
+        $data = User::findOrFail(base64_decode($id))->load('ketua', 'kader', 'ortu');
 
         return view('auth.profile', ['data' => $data, 'activePage' => 'Profile']);
     }
 
     public function profile_update(Request $request, $id)
     {
-        if ($request->password == null) {
+        $user = User::findOrFail(base64_decode($id))->load('kader', 'ortu');
+        if (auth()->user()->role = "Ketua" || auth()->user()->role = "Kader") {
             $request->validate([
-                'password' => ['required', 'confirmed']
+                'nik' => ['required', 'min:16', 'max:16'],
+                'nama_lengkap' => ['required', 'string'],
+                'tanggal_lahir' => ['required', 'date'],
+                'alamat' => ['required', 'string'],
+                'nomor_telepon' => ['required', 'min:11', 'numeric']
             ]);
 
-            $user = User::findOrFail($id);
-            $user->password = Hash::make($request->password);
+            $user->name = $request->nama_lengkap;
+            $user->kader->nik = $request->nik;
+            $user->kader->nama_istri = $request->nama_lengkap;
+            $user->kader->tanggal_lahir = $request->tanggal_lahir;
+            $user->kader->alamat = $request->alamat;
+            $user->kader->nomor_telepon = $request->nomor_telepon;
             $user->save();
-        } else {
-            $user = User::findOrFail($id);
-            if (!isset($user->kader)) {
-                $request->validate([
-                    'nik' => ['required', 'min:16', 'max:16'],
-                    'nama_lengkap' => ['required'],
-                    'tanggal_lahir' => ['required'],
-                    'alamat' => ['required'],
-                    'nomor_telepon' => ['required', 'min:11', 'numeric']
-                ]);
+            $user->kader->save();
+        } elseif (auth()->user()->role = "Ibu Balita") {
+            $request->validate([
+                'nik' => ['required', 'min:16', 'max:16'],
+                'nama_istri' => ['required', 'string'],
+                'pekerjaan_istri' => ['required', 'string'],
+                'alamat' => ['required', 'string'],
+                'nomor_telepon' => ['required', 'min:11', 'numeric'],
+                'nama_suami' => ['required', 'string'],
+                'pekerjaan_suami' => ['required', 'string']
+            ]);
 
-                $user->kader->nik = $request->nik;
-                $user->kader->nama_lengkap = $request->nama_lengkap;
-                $user->kader->tanggal_lahir = $request->tanggal_lahir;
-                $user->kader->alamat = $request->alamat;
-                $user->kader->nomor_telepon = $request->nomor_telepon;
-                $user->save();
-            } else {
-                $request->validate([
-                    'nik' => ['required', 'min:16', 'max:16'],
-                    'nama_ibu' => ['required'],
-                    'pekerjaan_ibu' => ['required'],
-                    'alamat' => ['required'],
-                    'nomor_telepon' => ['required', 'min:11', 'numeric'],
-                    'nama_ayah' => ['required'],
-                    'pekerjaan_ayah' => ['required']
-                ]);
-
-                $user->ibu_balita->nik = $request->nik;
-                $user->ibu_balita->nama_ibu = $request->nama_ibu;
-                $user->ibu_balita->pekerjaan_ibu = $request->pekerjaan_ibu;
-                $user->ibu_balita->alamat = $request->alamat;
-                $user->ibu_balita->nomor_telepon = $request->nomor_telepon;
-                $user->ibu_balita->nama_ayah = $request->nama_ayah;
-                $user->ibu_balita->pekerjaan_ayah = $request->pekerjaan_ayah;
-                $user->save();
-            }
-
-            return redirect()->back();
+            $user->name = $request->nama_istri;
+            $user->ortu->nik = $request->nik;
+            $user->ortu->nama_istri = $request->nama_ibu;
+            $user->ortu->pekerjaan_istri = $request->pekerjaan_ibu;
+            $user->ortu->alamat = $request->alamat;
+            $user->ortu->nomor_telepon = $request->nomor_telepon;
+            $user->ortu->nama_suami = $request->nama_ayah;
+            $user->ortu->pekerjaan_suami = $request->pekerjaan_ayah;
+            $user->save();
+            $user->ortu->save();
         }
+
+        return response()->json(200);
+    }
+
+    public function ganti_password(Request $request, $id)
+    {
+        $request->validate([
+            'password' => ['required', 'min:8', 'confirmed', 'string'],
+            'password_confirmation' => ['required', 'string', 'min:8',]
+        ]);
+
+        $user = User::findOrFail(base64_decode($id));
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        return response()->json(200);
     }
 }

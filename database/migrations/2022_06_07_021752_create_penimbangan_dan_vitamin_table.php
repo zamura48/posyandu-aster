@@ -5,7 +5,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePenimbangansTable extends Migration
+class CreatePenimbanganDanVitaminTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,13 +14,15 @@ class CreatePenimbangansTable extends Migration
      */
     public function up()
     {
-        Schema::create('penimbangans', function (Blueprint $table) {
+        Schema::create('penimbangan_dan_vitamin', function (Blueprint $table) {
             $table->id();
-            $table->year('tahun')->nullable();
-            $table->enum('bulan', ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'])->nullable();
-            $table->integer('bb')->nullable();
-            $table->integer('tb')->nullable();
+            $table->enum('vitamin_a', ['Merah', 'Biru'])->nullable();
+            $table->integer('bb');
+            $table->integer('tb');
+            $table->enum('aksi_eksklusif', ['Ya', 'Tidak'])->nullable();
+            $table->enum('inisiatif_menyusui_dini', ['Ya', 'Tidak'])->nullable();
             $table->string('keterangan')->nullable();
+            $table->date('tanggal_input');
             $table->foreignIdFor(Balita::class);
             $table->timestamps();
         });
@@ -33,6 +35,6 @@ class CreatePenimbangansTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('penimbangans');
+        Schema::dropIfExists('penimbangan_dan_vitamin');
     }
 }
